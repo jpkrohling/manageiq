@@ -121,6 +121,10 @@ module ManageIQ::Providers
       run_generic_operation(:Undeploy, ems_ref)
     end
 
+    def redeploy_middleware_deployment(ems_ref)
+      run_generic_operation(:Redeploy, ems_ref)
+    end
+
     def self.raw_alerts_connect(hostname, port, username, password)
       require 'hawkular_all'
       url         = URI::HTTP.build(:host => hostname, :port => port.to_i, :path => '/hawkular/alerts').to_s
