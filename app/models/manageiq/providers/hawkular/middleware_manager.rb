@@ -1,3 +1,5 @@
+require 'hawkular/hawkular_client_utils'
+
 # TODO: remove the module and just make this:
 # class ManageIQ::Providers::Hawkular::MiddlewareManager < ManageIQ::Providers::MiddlewareManager
 module ManageIQ::Providers
@@ -57,6 +59,23 @@ module ManageIQ::Providers
     def feeds
       with_provider_connection do |connection|
         connection.inventory.list_feeds
+      end
+    end
+
+    def machine_id(feed)
+      with_provider_connection do |connection|
+        resources = connection.inventory.list_resource_types(feed)
+
+        oses = resources.select { |item| item.id == 'Operating System'}
+        return nil if oses.nil? or oses.empty?
+
+        # TODO: are we going to ever have more than one OS per feed? If so, how should we link EAPs with OSes?
+        os = oses.first
+        os_resources = connection.inventory.list_resources_for_type(os.path, true)
+        return nil if os_resources.nil? or os_resources.empty?
+
+        os_resource = os_resources.first
+        return os_resource.properties['Machine Id']
       end
     end
 

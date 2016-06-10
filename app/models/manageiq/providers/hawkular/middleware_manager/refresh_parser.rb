@@ -1,3 +1,5 @@
+require 'hawkular/hawkular_client_utils'
+
 module ManageIQ::Providers
   module Hawkular
     class MiddlewareManager::RefreshParser
@@ -26,6 +28,11 @@ module ManageIQ::Providers
           @ems.eaps(feed).map do |eap|
             @eaps << eap
             server = parse_middleware_server(eap)
+            server[:lives_on_type] = 'ManageIQ::Providers::Redhat::InfraManager::Vm'
+
+            ## this is wrong, this has to be the ID for the host that has the same machine ID, something like Vm.find_by
+            server[:lives_on_id] = @ems.machine_id(eap.feed)
+
             @data[:middleware_servers] << server
             @data_index.store_path(:middleware_servers, :by_nativeid, server[:nativeid], server)
           end
